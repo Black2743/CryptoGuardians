@@ -8,8 +8,8 @@ def main():
     model = torch.hub.load('ultralytics/yolov5', 'custom', path='/home/black/Desktop/CryptoGuardians/detectSystem/best.pt', force_reload=False)
     classes = model.names
    
-   # cap = cv2.VideoCapture("udp://127.0.0.1:9998")
-    cap = cv2.VideoCapture("/home/black/Desktop/CryptoGuardians/source/Suspect_1.mp4")
+    cap = cv2.VideoCapture("udp://127.0.0.1:9998")
+    #cap = cv2.VideoCapture("/home/black/Desktop/CryptoGuardians/source/Suspect.mp4")
 
     while True:
         ret, frame = cap.read()
@@ -31,9 +31,23 @@ def main():
 
 
 def bufferJson(alert:{}):
-     USERS_FILE="/home/black/Desktop/CryptoGuardians/detectSystem/telegramBot/buffer.json"
-     with open(USERS_FILE, "w") as users_file:
-            json.dump(alert,users_file)
+    USERS_FILE="/home/black/Desktop/CryptoGuardians/detectSystem/telegramBot/buffer.json"
+    LOG_FILE="/home/black/Desktop/CryptoGuardians/detectSystem/telegramBot/web/log.json"
+    with open(USERS_FILE, "w") as users_file:
+        json.dump(alert,users_file)
+    with open(LOG_FILE, 'r') as file:
+        data = file.read()
+    data = data.rstrip(']')
+    data += ','
+    json_string=json.dumps(alert)
+    json_string=json_string.replace("'",'"')
+    data+=json_string
+    data+=']'
+    data=data.replace("/home/black/Desktop/CryptoGuardians/detectSystem/telegramBot/web/","./")
+    with open(LOG_FILE,'w') as file:
+        file.write(data)
+    
+
 
 def detecting (frame, model):
     frame = [frame]
@@ -47,7 +61,7 @@ def color_box(results, frame, classes, acc=0.82):
     n = len(labels)
     x_window, y_window = frame.shape[1], frame.shape[0]
 
-    for i in range(n): #processing of detected objects
+    for i in range(n): 
         cords_list = cords[i]
         if cords_list[4] >= acc: 
             print(f"Creating color box . . .")
@@ -63,7 +77,7 @@ def color_box(results, frame, classes, acc=0.82):
                 "camera_name": "Camera1",
                 "location": "Camera1_location",
                 "time": formatted_time,
-                "photo": f"/home/black/Desktop/CryptoGuardians/detectSystem/telegramBot/savedFrame/{formatted_time}.jpg",
+                "photo": f"/home/black/Desktop/CryptoGuardians/detectSystem/telegramBot/web/savedFrame/{formatted_time}.jpg",
                 "incident":text_d
             }
            
